@@ -1,0 +1,222 @@
+@startuml
+top to bottom direction
+
+class Camera
+{
+    - rightVector : glm::vec2
+    - upVector : glm::vec2
+    - center : glm::vec2
+    - playerPos : glm::vec3[4]
+    - cameraWidth : float
+    - cameraHeight : float
+    - previousWidth : float = 0
+    - previousHeight : float = 0
+
+    + Camera()
+    + LerpCamera(size : int) : void
+    + GetCameraWidth() : float
+    + GetCameraHeight() : float
+    + GetCenterX() : float
+    + GetCenterY() : float
+    + setPlayerPos(playerNum : int, pos : glm::vec3) : void
+    + ScreenToCameraPosition(screenPos : glm::vec3) : glm::vec3 
+    + CameraToScreenPosition(cameraPos : glm::vec3) : glm::vec3
+    + WorldToCameraPosition(worldPos : glm::vec3) : glm::vec3
+    + CameraToWorldPosition(cameraPos : glm::vec3) : glm::vec3
+    + getCameraOrthoValue() : OrthographicValue
+}
+
+enum CollisionType {
+    Static
+    Kinematic
+    Trigger
+}
+
+class Collider
+{
+    - parent : ImageObject
+    - previousPos : glm::vec3
+    - collisionType : CollisionType
+    - gizmos : GizmosObject
+    - size : glm::vec3
+    - halfSize : glm::vec3
+    - isEnter : bool = false
+    - isExit : bool = false
+
+    + Collider(type : CollisionType, parent : ImageObject)
+    + Update(size : glm::vec3, position : glm::vec3) : void
+    + GetGizmos() : GizmosObject
+    + GetSize() : glm::vec3
+    + GetPreviousPos() : glm::vec3
+    + GetParent() : ImageObject
+    + SetPreviousPos(pos : glm::vec3) : void
+    + GetHalfSize() : glm::vec3
+    + SetGizmosColor(color : glm::vec3) : void
+    + GetCollisionType() : CollisionType
+    + SetCollisionType(type : CollisionType) : void
+    + setColliderSize(size : glm::vec3) : void
+}
+
+class OrthographicValue <<struct>> {
+    + left : float 
+    + right : float 
+    + bottom : float 
+    + top : float 
+}
+
+class SpritesheetInfo <<struct>> {
+    + name : std::string = "name"
+    + texture : std::string = "texture"
+    + textureid : unsigned int = 0
+    + spritewidth : float = 0
+    + spriteheight : float = 0
+    + sheetwidth : float = 0
+    + sheetheight : float = 0
+    + isLoop : bool = false
+    + SpritesheetInfo()
+    + SpritesheetInfo(...) : void
+}
+
+note right of SpritesheetInfo
+    Constructor parameters hidden for readability:
+    (name : std::string, texture : std::string,
+    spritewidth : float, spriteheight : float,
+    sheetwidth : float, sheetheight : float,
+    isLoop : bool = true)
+end note
+
+abstract class DrawableObject {
+    # pos : glm::vec3
+    # size : glm::vec3
+    # rotateAngle : float
+    # orderingLayer : int
+    # isActive : bool = true
+
+    + DrawableObject()
+    + ~DrawableObject()
+
+    + getTransform() : glm::mat4
+    + GetIsActive() : bool
+    + SetIsActive(isActive : bool) : void
+
+    + Render(globalModelTransform : glm::mat4) : void
+    + SetSize(sizeX : float, sizeY : float) : void
+    + SetPosition(newPosition : glm::vec3) : void
+    + SetRotation(degree : float) : void
+
+    + SetOrderingLayer(layer : int) : void
+    + Translate(moveDistance : glm::vec3) : void
+
+    + getPos() : glm::vec3
+    + getSize() : glm::vec3
+    + getOrderingLayer() : int
+}
+
+enum AnimationState {
+    Idle
+}
+
+class EntityObject {
+    # collider : Collider
+    # animList : map<AnimationState, SpritesheetInfo>
+    # currAnimState : AnimationState
+
+    + EntityObject()
+    + ~EntityObject()
+
+    + SetSpriteInfo(info : SpritesheetInfo) : void
+    + SetTexture(path : string) : void
+    + Render(globalModelTransform : glm::mat4) : void
+
+    + SetSize(sizeX : float, sizeY : float) : void
+    + GetCollider() : Collider
+    + setColliderSize(size : glm::vec3) : void
+
+    + OnColliderEnter(other : Collider) : void
+    + OnColliderStay(other : Collider) : void
+    + OnColliderExit(other : Collider) : void
+    + OnTriggerEnter(other : Collider) : void
+    + OnTriggerStay(other : Collider) : void
+    + OnTriggerExit(other : Collider) : void
+
+    + SetAnimationSprite(state : AnimationState, spriteInfo : SpritesheetInfo) : void
+    + ChangeAnimationState(anim : AnimationState) : void
+    + UpdateCurrentAnimation() : void
+}
+
+class ImageObject {
+    # texture : unsigned int
+    # spriteRenderer : SpriteRenderer
+    # sheetInfo : SpritesheetInfo
+    # isAnimated : bool
+
+    + ImageObject()
+    + ~ImageObject()
+
+    + GetSpriteRenderer() : SpriteRenderer
+    + SetSpriteInfo(info : SpritesheetInfo) : void
+    + SetTextureWithID(info : SpritesheetInfo, id : unsigned int) : void
+    + SetTexture(path : string) : void
+    + Render(globalModelTransform : glm::mat4) : void
+
+    + SetIsAnimated(value : bool) : void
+    + GetIsAnimated() : bool
+
+    + OnColliderEnter(other : Collider) : void
+    + OnColliderStay(other : Collider) : void
+    + OnColliderExit(other : Collider) : void
+    + OnTriggerEnter(other : Collider) : void
+    + OnTriggerStay(other : Collider) : void
+    + OnTriggerExit(other : Collider) : void
+}
+
+class SpriteRenderer {
+    - texture : string
+    - row : float
+    - column : float
+    - spritewidth : float
+    - spriteheight : float
+    - sheetwidth : float
+    - sheetheight : float
+    - frame : float
+
+    + isLoop : bool
+
+    + SpriteRenderer(texture : string)
+
+    + SetSpriteInfo(spritewidth : float, spriteheight : float, sheetwidth : float, sheetheight : float) : void
+    + SetTexture(texture : string) : void
+    + SetFrame(frame : int) : void
+
+    + ShiftColumn() : void
+    + ShiftRow() : void
+    + ShiftTo(row : float, column : float) : void
+
+    + GetRow() : float
+    + GetColumn() : float
+    + GetSpriteWidth() : float
+    + GetSpriteHeight() : float
+    + GetSheetWidth() : float
+    + GetSheetHeight() : float
+    + GetFrame() : int
+}
+
+' inheritance
+EntityObject --|> ImageObject
+ImageObject --|> DrawableObject
+
+' Relationship
+EntityObject --> Collider
+EntityObject --> SpritesheetInfo
+EntityObject ..> AnimationState
+
+Collider ..> CollisionType
+Camera ..> OrthographicValue
+
+Collider --> ImageObject
+
+ImageObject --> SpriteRenderer
+ImageObject --> SpritesheetInfo
+ImageObject ..> Collider
+
+@enduml
