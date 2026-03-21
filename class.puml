@@ -1,91 +1,9 @@
 @startuml
 top to bottom direction
+skinparam linetype ortho
 
-class Camera
-{
-    - rightVector : glm::vec2
-    - upVector : glm::vec2
-    - center : glm::vec2
-    - playerPos : glm::vec3[4]
-    - cameraWidth : float
-    - cameraHeight : float
-    - previousWidth : float = 0
-    - previousHeight : float = 0
-
-    + Camera()
-    + LerpCamera(size : int) : void
-    + GetCameraWidth() : float
-    + GetCameraHeight() : float
-    + GetCenterX() : float
-    + GetCenterY() : float
-    + setPlayerPos(playerNum : int, pos : glm::vec3) : void
-    + ScreenToCameraPosition(screenPos : glm::vec3) : glm::vec3 
-    + CameraToScreenPosition(cameraPos : glm::vec3) : glm::vec3
-    + WorldToCameraPosition(worldPos : glm::vec3) : glm::vec3
-    + CameraToWorldPosition(cameraPos : glm::vec3) : glm::vec3
-    + getCameraOrthoValue() : OrthographicValue
-}
-
-enum CollisionType {
-    Static
-    Kinematic
-    Trigger
-}
-
-class Collider
-{
-    - parent : ImageObject
-    - previousPos : glm::vec3
-    - collisionType : CollisionType
-    - gizmos : GizmosObject
-    - size : glm::vec3
-    - halfSize : glm::vec3
-    - isEnter : bool = false
-    - isExit : bool = false
-
-    + Collider(type : CollisionType, parent : ImageObject)
-    + Update(size : glm::vec3, position : glm::vec3) : void
-    + GetGizmos() : GizmosObject
-    + GetSize() : glm::vec3
-    + GetPreviousPos() : glm::vec3
-    + GetParent() : ImageObject
-    + SetPreviousPos(pos : glm::vec3) : void
-    + GetHalfSize() : glm::vec3
-    + SetGizmosColor(color : glm::vec3) : void
-    + GetCollisionType() : CollisionType
-    + SetCollisionType(type : CollisionType) : void
-    + setColliderSize(size : glm::vec3) : void
-}
-
-class OrthographicValue <<struct>> {
-    + left : float 
-    + right : float 
-    + bottom : float 
-    + top : float 
-}
-
-class SpritesheetInfo <<struct>> {
-    + name : std::string = "name"
-    + texture : std::string = "texture"
-    + textureid : unsigned int = 0
-    + spritewidth : float = 0
-    + spriteheight : float = 0
-    + sheetwidth : float = 0
-    + sheetheight : float = 0
-    + isLoop : bool = false
-    + SpritesheetInfo()
-    + SpritesheetInfo(...) : void
-}
-
-note right of SpritesheetInfo
-    Constructor parameters hidden for readability:
-    (name : std::string, texture : std::string,
-    spritewidth : float, spriteheight : float,
-    sheetwidth : float, sheetheight : float,
-    isLoop : bool = true)
-end note
-
-abstract class DrawableObject {
+package Object{
+    abstract class DrawableObject {
     # pos : glm::vec3
     # size : glm::vec3
     # rotateAngle : float
@@ -110,13 +28,34 @@ abstract class DrawableObject {
     + getPos() : glm::vec3
     + getSize() : glm::vec3
     + getOrderingLayer() : int
-}
+    }
+    class ImageObject {
+    # texture : unsigned int
+    # spriteRenderer : SpriteRenderer
+    # sheetInfo : SpritesheetInfo
+    # isAnimated : bool
 
-enum AnimationState {
-    Idle
-}
+    + ImageObject()
+    + ~ImageObject()
 
-class EntityObject {
+    + GetSpriteRenderer() : SpriteRenderer
+    + SetSpriteInfo(info : SpritesheetInfo) : void
+    + SetTextureWithID(info : SpritesheetInfo, id : unsigned int) : void
+    + SetTexture(path : string) : void
+    + Render(globalModelTransform : glm::mat4) : void
+
+    + SetIsAnimated(value : bool) : void
+    + GetIsAnimated() : bool
+
+    + OnColliderEnter(other : Collider) : void
+    + OnColliderStay(other : Collider) : void
+    + OnColliderExit(other : Collider) : void
+    + OnTriggerEnter(other : Collider) : void
+    + OnTriggerStay(other : Collider) : void
+    + OnTriggerExit(other : Collider) : void
+    }
+
+    class EntityObject {
     # collider : Collider
     # animList : map<AnimationState, SpritesheetInfo>
     # currAnimState : AnimationState
@@ -142,81 +81,469 @@ class EntityObject {
     + SetAnimationSprite(state : AnimationState, spriteInfo : SpritesheetInfo) : void
     + ChangeAnimationState(anim : AnimationState) : void
     + UpdateCurrentAnimation() : void
+    }
+
+    class GizmosObject {
+        - borderColor : glm::vec3
+
+        + GizmosObject()
+        + ~GizmosObject()
+
+        + SetColor(r : float, g : float, b : float) : void
+        + Render(globalModelTransform : glm::mat4) : void
+    }
+
+    class UiObject {
+        - playerNumOwner : int
+
+        + UiObject()
+        + ~UiObject()
+
+        + SetTexture(path : std::string) : void
+        + Render(globalModelTransform : glm::mat4) : void
+
+        + setNumOwner(Num : int) : void
+        + getNumOwner() : int
+
+        + OnColliderEnter(other : Collider*) : void
+        + OnColliderStay(other : Collider*) : void
+        + OnColliderExit(other : Collider*) : void
+        + OnTriggerEnter(other : Collider*) : void
+        + OnTriggerStay(other : Collider*) : void
+        + OnTriggerExit(other : Collider*) : void
+    }
+
+    class TrapObject {
+        + isActivate : bool = false
+
+        - lifeTime : int
+        - playerNumOwner : int
+        - CanKnockback : bool
+        - type : int
+        - TileInRange : std::vector<TileObject*>
+
+        + TrapObject()
+        + ~TrapObject()
+
+        + Render(globalModelTransform : glm::mat4) : void
+        + SetTexture(path : std::string) : void
+
+        + SetLifeTime(lifeTime : int) : void
+        + ReduceLifeTime() : void
+        + GetLifetime() : int
+
+        + SetPlayerNumber(Num : int) : void
+        + GetPlayerNumber() : int
+
+        + SetCanKnockback(isCanKnockback : bool) : void
+        + GetCanKnockback() : bool
+
+        + SetType(type : int) : void
+        + GetType() : bool
+
+        + AddTileInRange(tile : TileObject*) : void
+        + DeleteTileInRange(tile : TileObject*) : void
+        + ExplodeTileInRange() : void
+
+        + OnColliderEnter(other : Collider*) : void
+        + OnColliderStay(other : Collider*) : void
+        + OnColliderExit(other : Collider*) : void
+        + OnTriggerEnter(other : Collider*) : void
+        + OnTriggerStay(other : Collider*) : void
+        + OnTriggerExit(other : Collider*) : void
+    }
+
+    enum TypeTrap {
+        Trap
+        Tnt
+    }
+
+    enum AnimationState {
+    
+    }
 }
 
-class ImageObject {
-    # texture : unsigned int
-    # spriteRenderer : SpriteRenderer
-    # sheetInfo : SpritesheetInfo
-    # isAnimated : bool
+package InfoStruct{
+    class OrthographicValue <<struct>> {
+        + left : float 
+        + right : float 
+        + bottom : float 
+        + top : float 
+    }
 
-    + ImageObject()
-    + ~ImageObject()
-
-    + GetSpriteRenderer() : SpriteRenderer
-    + SetSpriteInfo(info : SpritesheetInfo) : void
-    + SetTextureWithID(info : SpritesheetInfo, id : unsigned int) : void
-    + SetTexture(path : string) : void
-    + Render(globalModelTransform : glm::mat4) : void
-
-    + SetIsAnimated(value : bool) : void
-    + GetIsAnimated() : bool
-
-    + OnColliderEnter(other : Collider) : void
-    + OnColliderStay(other : Collider) : void
-    + OnColliderExit(other : Collider) : void
-    + OnTriggerEnter(other : Collider) : void
-    + OnTriggerStay(other : Collider) : void
-    + OnTriggerExit(other : Collider) : void
+    class SpritesheetInfo <<struct>> {
+        + name : std::string = "name"
+        + texture : std::string = "texture"
+        + textureid : unsigned int = 0
+        + spritewidth : float = 0
+        + spriteheight : float = 0
+        + sheetwidth : float = 0
+        + sheetheight : float = 0
+        + isLoop : bool = false
+        + SpritesheetInfo()
+        + SpritesheetInfo(...) : void
+    }
 }
 
-class SpriteRenderer {
-    - texture : string
-    - row : float
-    - column : float
-    - spritewidth : float
-    - spriteheight : float
-    - sheetwidth : float
-    - sheetheight : float
-    - frame : float
+package Collision{
+    enum CollisionType {
+        Static
+        Kinematic
+        Trigger
+    }
 
-    + isLoop : bool
+    class Collider
+    {
+        - parent : ImageObject
+        - previousPos : glm::vec3
+        - collisionType : CollisionType
+        - gizmos : GizmosObject
+        - size : glm::vec3
+        - halfSize : glm::vec3
+        - isEnter : bool = false
+        - isExit : bool = false
 
-    + SpriteRenderer(texture : string)
-
-    + SetSpriteInfo(spritewidth : float, spriteheight : float, sheetwidth : float, sheetheight : float) : void
-    + SetTexture(texture : string) : void
-    + SetFrame(frame : int) : void
-
-    + ShiftColumn() : void
-    + ShiftRow() : void
-    + ShiftTo(row : float, column : float) : void
-
-    + GetRow() : float
-    + GetColumn() : float
-    + GetSpriteWidth() : float
-    + GetSpriteHeight() : float
-    + GetSheetWidth() : float
-    + GetSheetHeight() : float
-    + GetFrame() : int
+        + Collider(type : CollisionType, parent : ImageObject)
+        + Update(size : glm::vec3, position : glm::vec3) : void
+        + GetGizmos() : GizmosObject
+        + GetSize() : glm::vec3
+        + GetPreviousPos() : glm::vec3
+        + GetParent() : ImageObject
+        + SetPreviousPos(pos : glm::vec3) : void
+        + GetHalfSize() : glm::vec3
+        + SetGizmosColor(color : glm::vec3) : void
+        + GetCollisionType() : CollisionType
+        + SetCollisionType(type : CollisionType) : void
+        + setColliderSize(size : glm::vec3) : void
+    }
 }
 
-' inheritance
-EntityObject --|> ImageObject
-ImageObject --|> DrawableObject
 
-' Relationship
-EntityObject --> Collider
-EntityObject --> SpritesheetInfo
+
+note bottom of SpritesheetInfo
+    Constructor parameters hidden for readability:
+    (name : std::string, texture : std::string,
+    spritewidth : float, spriteheight : float,
+    sheetwidth : float, sheetheight : float,
+    isLoop : bool = true)
+end note
+
+
+
+package Renderer()
+{
+    class SpriteRenderer {
+        - texture : string
+        - row : float
+        - column : float
+        - spritewidth : float
+        - spriteheight : float
+        - sheetwidth : float
+        - sheetheight : float
+        - frame : float
+
+        + isLoop : bool
+
+        + SpriteRenderer(texture : string)
+
+        + SetSpriteInfo(spritewidth : float, spriteheight : float, sheetwidth : float, sheetheight : float) : void
+        + SetTexture(texture : string) : void
+        + SetFrame(frame : int) : void
+
+        + ShiftColumn() : void
+        + ShiftRow() : void
+        + ShiftTo(row : float, column : float) : void
+
+        + GetRow() : float
+        + GetColumn() : float
+        + GetSpriteWidth() : float
+        + GetSpriteHeight() : float
+        + GetSheetWidth() : float
+        + GetSheetHeight() : float
+        + GetFrame() : int
+    }
+
+    class GLRenderer {
+        # winWidth : int
+        # winHeight : int
+        # orthoValue : OrthographicValue
+
+        # projectionMatrix : glm::mat4
+        # modelMatrix : glm::mat4
+        # mMatrixId : GLuint = -1
+        # pMatrixId : GLuint = -1
+        # colorUniformId : GLuint = -1
+        # renderModeUniformId : GLuint = -1
+
+        # gProgramId : GLuint
+        # gPos2DLocation : int
+        # gTex2DLocation : int
+
+        # vertexShader : Shader
+        # fragmentShader : Shader
+        # shapes : map<string, MeshVbo>
+
+        + GLRenderer(w : int, h : int)
+        + ~GLRenderer()
+
+        + Render(objList : vector<DrawableObject>) : void
+        + InitGL(vertexShaderFile : string, fragmentShaderFile : string) : bool
+        + AddMesh(name : string, shape : MeshVbo) : void
+        + GetMesh(name : string) : MeshVbo
+        + GetOrthovalue() : OrthographicValue
+        + ClearMesh() : void
+
+        + SetOrthoProjection(left : float, right : float, bottom : float, top : float) : void
+        + SetViewPort(x : int, y : int, w : int, h : int) : void
+        + SetClearColor(r : float, g : float, b : float) : void
+
+        + GetModelMatrixAttrId() : GLuint
+        + GetProjectionMatrixAttrId() : GLuint
+        + GetColorUniformId() : GLuint
+        + GetModeUniformId() : GLuint
+
+        + LoadTexture(path : string) : GLuint
+
+        - PrintProgramLog(program : GLuint) : void
+        - Initialize(vertexShaderFile : string, fragmentShaderFile : string) : bool
+        - SetMeshAttribId(shape : MeshVbo) : void
+    }
+}
+
+
+
+package GameStateManager
+{
+    class GameEngine {
+        - instance : GameEngine*
+        - winWidth : int
+        - winHeight : int
+        - renderer : GLRenderer*
+        - stateController : GameStateController*
+        - window : SDL_Window*
+        - glContext : SDL_GLContext
+
+        - GameEngine()
+
+        + GetInstance() : GameEngine*
+        + GetRenderer() : GLRenderer*
+        + GetStateController() : GameStateController*
+        + GetSDLWindow() : SDL_Window*
+        + GetglContext() : SDL_GLContext
+
+        + SetSDLWindow(window : SDL_Window*) : void
+        + SetglContext(context : SDL_GLContext) : void
+
+        + Init(width : int, height : int) : void
+        + SetDrawArea(left : float, right : float, bottom : float, top : float) : void
+        + SetBackgroundColor(r : float, g : float, b : float) : void
+
+        + AddMesh(name : std::string, mesh : MeshVbo*) : void
+        + ClearMesh() : void
+        + Render(renderObjects : std::vector<DrawableObject*>) : void
+
+        + GetWindowWidth() : int
+        + GetWindowHeight() : int
+    }
+
+    class GameStateController {
+        - currentLevel : Level*
+
+        + gameStateCurr : GameState
+        + gameStatePrev : GameState
+        + gameStateNext : GameState
+        + loadingState : GameState
+
+        + GameStateController()
+        + Init(gameStateInit : GameState) : void
+
+        + LoadLevel() : void
+        + InitLevel() : void
+        + UpdateLevel() : void
+        + DrawLevel() : void
+        + Freelevel() : void
+        + UnloadLevel() : void
+
+        + HandleKeyLevel(key : char) : void
+        + HandleMouseLevel(type : int, x : int, y : int) : void
+        + MovementLevel(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+    }
+
+    enum GameState {
+    	GS_LEVEL1,
+    	GS_LEVELGAMEPLAY,
+    	GS_LEVELMAPTEST,
+    	GS_LEVELLOADING,
+    	GS_LEVELSHOWCASE,
+    	GS_LEVELIMGUI,
+    	GS_RESTART,
+    	GS_QUIT,
+    	GS_NONE
+    }
+}
+
+package Vbo{
+    abstract class MeshVbo {
+        # posVboId : GLuint = -1
+        # texVboId : GLuint = -1
+        # posAttribId : GLuint = -1
+        # texAttribId : GLuint = -1
+
+        + MeshVbo()
+
+        + LoadData() : void
+        + GetMeshName() : std::string
+        + GetPosId() : GLuint
+        + GetTexId() : GLuint
+        + Render() : void
+        + SetAttribId(posId : GLuint, texId : GLuint) : void
+    }
+
+    class TriangleMeshVbo {
+        {static} MESH_NAME : std::string
+
+        + TriangleMeshVbo()
+        + GetMeshName() : std::string
+        + Render() : void
+        + LoadData() : void
+    }
+
+    class SquareMeshVbo {
+        {static} MESH_NAME : std::string
+
+        + SquareMeshVbo()
+        + GetMeshName() : std::string
+        + Render() : void
+        + LoadData() : void
+
+        + ChangeTextureData(
+            row : float,
+            column : float,
+            spritewidth : float,
+            spriteheight : float,
+            sheetwidth : float,
+            sheetheight : float
+        ) : void
+    }
+
+    class LineMeshVbo {
+        {static} MESH_NAME : std::string
+
+        + LineMeshVbo()
+        + GetMeshName() : std::string
+        + Render() : void
+        + LoadData() : void
+    }
+}
+
+package Levels{
+    class Level {
+        - objectsList : std::vector<DrawableObject*>
+        - UIsList : std::vector<DrawableObject*>
+
+        - player : ImageObject*
+        - camera : Camera
+        - dt : float = 0
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+    }
+}
+
+
+
+package Others{
+    
+
+    class Camera{
+        - rightVector : glm::vec2
+        - upVector : glm::vec2
+        - center : glm::vec2
+        - playerPos : glm::vec3[4]
+        - cameraWidth : float
+        - cameraHeight : float
+        - previousWidth : float = 0
+        - previousHeight : float = 0
+
+        + Camera()
+        + LerpCamera(size : int) : void
+        + GetCameraWidth() : float
+        + GetCameraHeight() : float
+        + GetCenterX() : float
+        + GetCenterY() : float
+        + setPlayerPos(playerNum : int, pos : glm::vec3) : void
+        + ScreenToCameraPosition(screenPos : glm::vec3) : glm::vec3 
+        + CameraToScreenPosition(cameraPos : glm::vec3) : glm::vec3
+        + WorldToCameraPosition(worldPos : glm::vec3) : glm::vec3
+        + CameraToWorldPosition(cameraPos : glm::vec3) : glm::vec3
+        + getCameraOrthoValue() : OrthographicValue
+    }
+}
+
+
+
+hide members
+
+EntityObject -down--|> ImageObject
+ImageObject -down--|> DrawableObject
+
+' EntityObject --> Collider
+' EntityObject --> SpritesheetInfo
 EntityObject ..> AnimationState
 
+ImageObject --left-> SpriteRenderer
+ImageObject --left-> SpritesheetInfo
+ImageObject --left-> Collider
+
+GizmosObject -up-|> DrawableObject
+' GizmosObject --> GameEngine
+' GizmosObject --> LineMeshVbo
+
+UiObject -down-|> ImageObject
+
+' UiObject --> Collider
+' UiObject --> GameEngine
+' UiObject --> SquareMeshVbo
+
+TrapObject -up-|> EntityObject
+
+' TrapObject --> Collider
+' TrapObject --> PlayerObject
+' TrapObject --> TileObject
+' TrapObject --> GameEngine
+' TrapObject --> SquareMeshVbo
+TrapObject ..> TypeTrap
+
 Collider ..> CollisionType
-Camera ..> OrthographicValue
+' Collider --> ImageObject
 
-Collider --> ImageObject
+GLRenderer ..> OrthographicValue
 
-ImageObject --> SpriteRenderer
-ImageObject --> SpritesheetInfo
-ImageObject ..> Collider
+' Camera ..> OrthographicValue
+
+' GameEngine --> GLRenderer
+GameEngine ..> GameStateController
+' GameEngine --> DrawableObject
+' GameEngine --> MeshVbo
+
+' GameStateController --> Level
+GameStateController ..> GameState
+
+' Level --> DrawableObject
+' Level --> ImageObject
+' Level --> Camera
+
+TriangleMeshVbo -up-|> MeshVbo
+LineMeshVbo -up-|> MeshVbo
+SquareMeshVbo -up-|> MeshVbo
+
 
 @enduml
