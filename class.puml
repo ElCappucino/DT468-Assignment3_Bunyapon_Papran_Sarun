@@ -456,9 +456,468 @@ package Levels{
         + HandleKey(key : char) : void
         + HandleMouse(type : int, x : int, y : int) : void
     }
+
+    class LevelGameplay {
+        - objectsList : std::vector<DrawableObject*>
+        - spriteList : std::map<std::string, SpritesheetInfo>
+        - players : PlayerObject*[4]
+        - playerSize : int = 0
+        - playerNum : int = 0
+
+        - targetSceneProjection : OrthographicValue
+        - camera : Camera
+        - timer : Timer*
+
+        - dt : int = 0
+        - time1s : float = 0
+        - time05s : float = 0
+        - previousWidth : float = 0
+        - previousHeight : float = 0
+
+        - axisXOld : float
+        - axisYOld : float
+        - norAxisXOld : float
+        - norAxisYOld : float
+        - isPositiveXOld : bool
+        - isPositiveYOld : bool
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+
+        + UpdateInput() : void
+        + UpdateCollision() : void
+        + UpdateProjectile() : void
+        + UpdateCooldown() : void
+        + UpdateMovement() : void
+        + UpdateUI() : void
+        + UpdateKnockback(obj1 : DrawableObject*, obj2 : DrawableObject*) : void
+        + UpdateTime() : void
+
+        + UsingAbility(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimFireball(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootFireball(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + Trap(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + Dash(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + TNT(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimTeleport(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootTeleport(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimBola(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootBola(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimCleave(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootCleave(numPlayer : int, button : PlayerObject::AbilityButton) : void
+    }
+
+    class LevelImGui {
+        - objectsList : std::vector<DrawableObject*>
+        - spriteList : std::map<std::string, SpritesheetInfo>
+
+        - currentCollisions : std::set<std::pair<Collider*, Collider*>>
+        - previousCollisions : std::set<std::pair<Collider*, Collider*>>
+
+        - camera : Camera
+        - players : std::array<PlayerObject*, 4>
+
+        - groundTile : int[MAP_HEIGHT][MAP_WIDTH]
+        - tilesList : std::array<std::array<TileObject*, MAP_WIDTH>, MAP_HEIGHT>
+
+        - blob_lookup_table : std::map<int, std::pair<int, int>>
+        - blob_lookup_table_underground : std::map<int, std::pair<int, int>>
+
+        - playerSize : int = 0
+        - playerNum : int = 0
+
+        - targetSceneProjection : OrthographicValue
+        - timer : Timer*
+        - dt : float = 0
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+    }
+
+    class LevelLoading {
+        - objectsList : std::vector<DrawableObject*>
+        - UIsList : std::vector<DrawableObject*>
+        - spriteList : std::map<std::string, SpritesheetInfo>
+
+        - player : ImageObject*
+        - camera : Camera
+        - dt : float = 0
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+    }
+
+    class LevelMainMenu {
+        - objectsList : std::vector<DrawableObject*>
+        - textList : std::vector<UiObject*>
+        - tutorialInfoList : std::vector<UiObject*>
+        - yesNoList : std::vector<UiObject*>
+        - textOptionList : std::vector<UiObject*>
+        - displayList : std::vector<UiObject*>
+        - volumeTrackList : std::vector<UiObject*>
+        - volumeKnobList : std::vector<UiObject*>
+        - volumeBoxList : std::vector<UiObject*>
+
+        - spriteList : std::map<std::string, SpritesheetInfo>
+
+        - playerNumber : int = 4
+        - playerMove : bool = false
+        - playerWhere : int = 1
+
+        - isCredit : bool = false
+        - isTutorial : bool = false
+        - InfoPage : int = 0
+
+        - isStart : bool = false
+        - isExit : bool = false
+
+        - isOption : bool = false
+        - isSelectDisplay : bool = false
+        - isSelectVolume : bool = false
+        - isMasterVolume : bool = false
+        - isSFXVolume : bool = false
+        - isBGMVolume : bool = false
+        - isToggleVolume : bool[3] = {true, true, true}
+        - isSlider : bool = false
+
+        - masterVolume : int = 100
+        - SFXVolume : int = 20
+        - BGMVolume : int = 20
+
+        - configNum : int = 0
+        - windowWidth : int
+        - windowHeight : int
+
+        - targetSceneProjection : OrthographicValue
+        - camera : Camera
+        - timer : Timer*
+
+        - dt : int = 0
+        - time1s : float = 0
+        - time05s : float = 0
+        - previousWidth : float = 0
+        - previousHeight : float = 0
+
+        - configs : std::vector<config*>
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+
+        + UpdateInput() : void
+        + UpdateUi() : void
+        + saveConfig(filename : std::string, con : config*) : void
+        + loadConfig(filename : std::string) : void
+    }
+
+    class LevelSelectAbility {
+        - objectsList : std::vector<DrawableObject*>
+        - playerWindowList : std::vector<ImageObject*>
+        - AbilityIconListTop : std::vector<UiObject*>
+        - AbilityIconListDown : std::vector<UiObject*>
+        - playerHoverList : std::vector<UiObject*>
+        - playerIconSmallList : std::vector<UiObject*>
+        - playerIconList : std::vector<UiObject*>
+        - playerRemainList : std::vector<UiObject*>
+
+        - playerAbilityList : std::map<int, std::vector<UiObject*>*>
+        - spriteList : std::map<std::string, SpritesheetInfo>
+
+        - playerSize : int = 0
+        - playerAbility : int[4][3] = {{8,8,8},{8,8,8},{8,8,8},{8,8,8}}
+        - character : int[4] = {-1}
+        - playerHoverWhere : int[4] = {0}
+        - playerMove : bool[4] = {false}
+        - playerNumber : int = 4
+        - ready : bool[4] = {false}
+        - helpHover : int = 0
+
+        - axisX : int
+        - axisY : int
+        - axisXplayerIconSmall : int
+        - axisYplayerIconSmall : int
+        - axisXplayerIcon : int
+        - axisYplayerIcon : int
+        - axisXAbilityIconSmall : int
+        - axisYAbilityIconSmall : int
+
+        - targetSceneProjection : OrthographicValue
+        - camera : Camera
+        - timer : Timer*
+        - windowWidth : int
+        - windowHeight : int
+
+        - dt : int = 0
+        - time1s : float = 0
+        - time05s : float = 0
+        - previousWidth : float = 0
+        - previousHeight : float = 0
+
+        - clicked : int[4] = {0,0,0,0}
+        - abilityFile : std::ofstream
+
+        - axisXOld : float
+        - axisYOld : float
+        - norAxisXOld : float
+        - norAxisYOld : float
+        - isPositiveXOld : bool
+        - isPositiveYOld : bool
+
+        - configs : std::vector<config*>
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+
+        + UpdateInput() : void
+        + UpdateUi() : void
+        + abilityToFile(fileName : std::string, who : int) : void
+
+        + saveConfig(filename : std::string, con : config*) : void
+        + loadConfig(filename : std::string) : void
+    }
+
+    class LevelMapTest {
+        - objectsList : std::vector<DrawableObject*>
+        - spriteList : std::map<std::string, SpritesheetInfo>
+        - player : DrawableObject*[4]
+
+        - groundTile : int[MAP_HEIGHT][MAP_WIDTH] = {0}
+        - propsTile : int[MAP_HEIGHT][MAP_WIDTH] = {0}
+        - colliderTile : int[MAP_HEIGHT][MAP_WIDTH] = {0}
+
+        - camera : Camera
+        - dt : float = 0
+
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
+
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
+        + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+
+        + CameraLerp() : void
+        + TileImport(TileBuffer : int[][], fileName : std::string) : void
+    }
+
+    class LevelShowcase {
+    - objectsList : std::vector<DrawableObject*>
+    - entityObjects : std::vector<EntityObject*>
+    - propObjects : std::vector<PropObject*>
+    - textObjects : std::vector<TextObject*>
+    - uiObjects : std::vector<UiObject*>
+
+    - currentCollisions : std::set<std::pair<Collider*, Collider*>>
+    - previousCollisions : std::set<std::pair<Collider*, Collider*>>
+
+    - spriteList : std::map<std::string, SpritesheetInfo>
+
+    - players : std::array<PlayerObject*, 4>
+    - playerUIs : std::array<UiObject*, 4>
+
+    - groundTile : int[][]
+    - propsTile : int[][]
+    - tilesList : std::array<std::array<TileObject*, MAP_WIDTH>, MAP_HEIGHT>
+
+    - camera : Camera
+    - timer : Timer*
+
+    - isPause : bool
+    - isOption : bool
+    - isVolume : bool
+
+    - currentPlayer : int
+    - dt : float = 0
+
+    + LevelLoad() : void
+    + LevelInit() : void
+    + LevelUpdate() : void
+    + LevelDraw() : void
+    + LevelFree() : void
+    + LevelUnload() : void
+
+    + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+    + HandleKey(key : char) : void
+    + HandleMouse(type : int, x : int, y : int) : void
+
+    + InitTile() : void
+    + InitProp() : void
+
+        + UpdateInput() : void
+        + UpdateCollision() : void
+        + UpdateProjectile() : void
+        + UpdateCooldown() : void
+        + UpdateMovement() : void
+        + UpdateUI() : void
+        + UpdateTime() : void
+        + UpdateCountdown() : void
+        + UpdateKrakenEvent() : void
+
+        + GroundTileRefactor() : void
+        + TileImport(TileBuffer : int[][], fileName : std::string) : void
+
+        + AddEntityToScene(entity : EntityObject*) : void
+        + AddObjectToScene(object : DrawableObject*) : void
+
+        + UsingAbilityKeyDown(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + UsingAbilityKeyUp(numPlayer : int, button : PlayerObject::AbilityButton) : void
+
+        + AimFireball(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootFireball(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + Trap(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + Dash(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + TNT(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimTeleport(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootTeleport(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimBola(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootBola(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + AimCleave(numPlayer : int, button : PlayerObject::AbilityButton) : void
+        + ShootCleave(numPlayer : int, button : PlayerObject::AbilityButton) : void
+
+        + loadAbility(filename : std::string) : void
+        + SaveConfigInfo(fileName : std::string) : void
+        + LoadConfigInfo(fileName : std::string) : void
+    }
+
+    enum TileCollapseDirection {
+        Down
+        Right
+        Up
+        Left
+    }
+
+    enum PauseMenuButton {
+        Resume
+        Option
+        MainMenu
+    }
+
+    enum YesNoButton {
+        Yes
+        No
+    }
+
+    enum OptionButton {
+        Display
+        MasterVolume
+        SFXVolume
+        BGMVolume
+    }
+
+    enum VolumeButton {
+        Knob
+        Box
+    }
+
+    class config {
+        - number : int
+        - posX : float
+        - posY : float
+        - height : float
+        - width : float
+        - offSetX : float
+        - offSetY : float
+        - playerHere : bool = false
+        - column : int
+    }
+
 }
 
+package JoystickAttribute{
+    class Joystick {
+        + OnJoystickConnected(e : SDL_ControllerDeviceEvent&) : void
+        + OnJoystickDisconnected(e : SDL_ControllerDeviceEvent&) : void
+        + Shutdown() : void
+        + Update() : void
 
+        + GetButton(joystickId : int, button : Button) : bool
+        + GetButtonDown(joystickId : int, button : Button) : bool
+        + GetButtonUp(joystickId : int, button : Button) : bool
+        + GetAxis(joystickId : int, axis : Axis) : float
+
+        - GetNextFreeIndex() : int
+    }
+
+    enum Axis {
+        LeftStickHorizontal
+        LeftStickVertical
+        RightStickHorizontal
+        RightStickVertical
+        LeftTrigger
+        RightTrigger
+        Count
+    }
+
+    enum Button {
+        Cross
+        Circle
+        Square
+        Triangle
+        ShareButton
+        P5Button
+        OptionsButton
+        LeftStickDown
+        RightStickDown
+        L1
+        R1
+        DPAD_Up
+        DPAD_Down
+        DPAD_Left
+        DPAD_Right
+        Touchpad
+        Count
+    }
+
+    class Controller <<struct>> {
+        - joystickIndex : int = -1
+        - gc : SDL_Joystick*
+
+        - buttons : std::array<bool, Button::Count>
+        - lastButtons : std::array<bool, Button::Count>
+        - axes : std::array<float, Axis::Count>
+        - lastAxes : std::array<float, Axis::Count>
+    }
+}
 
 package Others{
     
@@ -544,6 +1003,35 @@ GameStateController ..> GameState
 TriangleMeshVbo -up-|> MeshVbo
 LineMeshVbo -up-|> MeshVbo
 SquareMeshVbo -up-|> MeshVbo
+
+Joystick --> Controller
+Joystick --> Axis
+Joystick --> Button
+
+LevelGameplay -up-|> Level
+LevelImGui -up-|> Level
+LevelLoading -up-|> Level
+LevelMainMenu -up-|> Level
+LevelSelectAbility -up-|> Level
+LevelMapTest -up-|> Level
+LevelShowcase -up-|> Level
+
+
+LevelMainMenu ..> config
+LevelSelectAbility ..> config
+
+LevelShowcase ..> TileCollapseDirection
+LevelShowcase ..> PauseMenuButton
+LevelShowcase ..> YesNoButton
+LevelShowcase ..> OptionButton
+LevelShowcase ..> TileCollapseDirection
+
+' LevelGameplay --> DrawableObject
+' LevelGameplay --> PlayerObject
+' LevelGameplay --> SpritesheetInfo
+' LevelGameplay --> OrthographicValue
+' LevelGameplay --> Camera
+' LevelGameplay --> Timer
 
 
 @enduml
