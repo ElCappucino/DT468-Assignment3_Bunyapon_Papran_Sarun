@@ -220,13 +220,13 @@ package Collision{
 
 
 
-note bottom of SpritesheetInfo
-    Constructor parameters hidden for readability:
-    (name : std::string, texture : std::string,
-    spritewidth : float, spriteheight : float,
-    sheetwidth : float, sheetheight : float,
-    isLoop : bool = true)
-end note
+' note bottom of SpritesheetInfo
+'     Constructor parameters hidden for readability:
+'     (name : std::string, texture : std::string,
+'     spritewidth : float, spriteheight : float,
+'     sheetwidth : float, sheetheight : float,
+'     isLoop : bool = true)
+' end note
 
 
 
@@ -741,47 +741,47 @@ package Levels{
     }
 
     class LevelShowcase {
-    - objectsList : std::vector<DrawableObject*>
-    - entityObjects : std::vector<EntityObject*>
-    - propObjects : std::vector<PropObject*>
-    - textObjects : std::vector<TextObject*>
-    - uiObjects : std::vector<UiObject*>
+        - objectsList : std::vector<DrawableObject*>
+        - entityObjects : std::vector<EntityObject*>
+        - propObjects : std::vector<PropObject*>
+        - textObjects : std::vector<TextObject*>
+        - uiObjects : std::vector<UiObject*>
 
-    - currentCollisions : std::set<std::pair<Collider*, Collider*>>
-    - previousCollisions : std::set<std::pair<Collider*, Collider*>>
+        - currentCollisions : std::set<std::pair<Collider*, Collider*>>
+        - previousCollisions : std::set<std::pair<Collider*, Collider*>>
 
-    - spriteList : std::map<std::string, SpritesheetInfo>
+        - spriteList : std::map<std::string, SpritesheetInfo>
 
-    - players : std::array<PlayerObject*, 4>
-    - playerUIs : std::array<UiObject*, 4>
+        - players : std::array<PlayerObject*, 4>
+        - playerUIs : std::array<UiObject*, 4>
 
-    - groundTile : int[][]
-    - propsTile : int[][]
-    - tilesList : std::array<std::array<TileObject*, MAP_WIDTH>, MAP_HEIGHT>
+        - groundTile : int[][]
+        - propsTile : int[][]
+        - tilesList : std::array<std::array<TileObject*, MAP_WIDTH>, MAP_HEIGHT>
 
-    - camera : Camera
-    - timer : Timer*
+        - camera : Camera
+        - timer : Timer*
 
-    - isPause : bool
-    - isOption : bool
-    - isVolume : bool
+        - isPause : bool
+        - isOption : bool
+        - isVolume : bool
 
-    - currentPlayer : int
-    - dt : float = 0
+        - currentPlayer : int
+        - dt : float = 0
 
-    + LevelLoad() : void
-    + LevelInit() : void
-    + LevelUpdate() : void
-    + LevelDraw() : void
-    + LevelFree() : void
-    + LevelUnload() : void
+        + LevelLoad() : void
+        + LevelInit() : void
+        + LevelUpdate() : void
+        + LevelDraw() : void
+        + LevelFree() : void
+        + LevelUnload() : void
 
-    + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
-    + HandleKey(key : char) : void
-    + HandleMouse(type : int, x : int, y : int) : void
+        + Movement(axisX : float, axisY : float, isPositiveX : bool, isPositiveY : bool) : void
+        + HandleKey(key : char) : void
+        + HandleMouse(type : int, x : int, y : int) : void
 
-    + InitTile() : void
-    + InitProp() : void
+        + InitTile() : void
+        + InitProp() : void
 
         + UpdateInput() : void
         + UpdateCollision() : void
@@ -945,7 +945,77 @@ package Others{
         + CameraToWorldPosition(cameraPos : glm::vec3) : glm::vec3
         + getCameraOrthoValue() : OrthographicValue
     }
+
+    class Log {
+        - s_CoreLogger : std::shared_ptr<spdlog::logger>
+        - s_ClientLogger : std::shared_ptr<spdlog::logger>
+
+        + Init() : void
+        + GetCoreLogger() : std::shared_ptr<spdlog::logger>
+        + GetClientLogger() : std::shared_ptr<spdlog::logger>
+    }
+
+    class Shader {
+        - shaderId : GLuint
+        - fileName : std::string
+        - shaderType : GLenum
+        + Shader(fileName : std::string, shaderType : GLenum)
+        + ~Shader()
+        + getShaderId() : GLuint
+        + LoadSource() : bool
+        + PrintShaderLog() : void
+    }
 }
+
+package Audio{
+    class Music {
+        - music : Mix_Music*
+
+        + Music(filePath : std::string)
+        + ~Music()
+
+        + Play(isLoop : bool = true) : void
+        + Stop() : void
+        + SetVolume(volume : int) : void
+    }
+
+    class SFX {
+        - chunk : Mix_Chunk*
+    
+        + SFX(filePath : std::string)
+        + ~SFX()
+    
+        + Play(isLoop : bool = false) : void
+        + Stop() : void
+        + SetVolume(volume : int) : void
+    }
+
+    class SoundManager {
+        - instance : SoundManager*
+        - musicSounds : std::map<std::string, Music*>
+        - SFXSounds : std::map<std::string, SFX*>
+
+        + SoundManager()
+        + ~SoundManager()
+
+        + GetInstance() : SoundManager*
+
+        + LoadSFX(name : std::string, filePath : std::string) : void
+        + LoadMusic(name : std::string, filePath : std::string) : void
+
+        + PlaySFX(name : std::string, isloop : bool = false) : void
+        + PlayMusic(name : std::string, isloop : bool = true) : void
+
+        + StopSFX(name : std::string) : void
+        + StopMusic(name : std::string) : void
+
+        + SetVolumeSFX(name : std::string, volume : int) : void
+        + SetVolumeMusic(name : std::string, volume : int) : void
+
+        + Cleanup() : void
+    }
+}
+
 
 
 
@@ -1024,6 +1094,7 @@ LevelShowcase ..> TileCollapseDirection
 LevelShowcase ..> PauseMenuButton
 LevelShowcase ..> YesNoButton
 LevelShowcase ..> OptionButton
+LevelShowcase ..> VolumeButton
 LevelShowcase ..> TileCollapseDirection
 
 ' LevelGameplay --> DrawableObject
@@ -1032,6 +1103,9 @@ LevelShowcase ..> TileCollapseDirection
 ' LevelGameplay --> OrthographicValue
 ' LevelGameplay --> Camera
 ' LevelGameplay --> Timer
+
+SoundManager --> Music
+SoundManager --> SFX
 
 
 @enduml
