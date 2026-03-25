@@ -3,30 +3,33 @@
 
 Person(player, "Player", "Plays the game")
 
-Container(EntityObject, "Entity Object", "Component", "Game object that interacts with each other")
 
-System_Boundary(c2, "Audios"){
+
+System_Boundary(c1, "Game Logic"){
+    Container(EntityObject, "Entity Object", "Component", "Game object that interacts with each other")
+
+    Container(Collider, "Collider", "Component", "Data to check if the object is collide or not")
+
+    Container(Camera, "Camera", "Component", "Store camera details and return the render output")
+
     Container(SoundManager, "Sound Manager", "Component", "Handle all audios in the game")
     Container(SFX, "SFX", "Component", "Handle one shot SFX audio with no loops")
     Container(Music, "Music", "Component", "Handle music audio with loops")
+
+    Container(Mesh, "Mesh", "Component", "Handle rendering data for OpenGL")
 }
 
-Container(Collider, "Collider", "Component", "Data to check if the object is collide or not")
-
-Container(Camera, "Camera", "Component", "Store camera details and return the render output")
-
-Container(GameEngine, "Game Engine", "Component", "Manage current game state and initialize render details")
-Container(GameStateController, "Game State Controller", "Component", "handle current level and level transfer")
-
-Container(Renderer, "Renderer", "Component", "Processes the object that requires visualization and textures")
-
-Container(InputSystem, "Input system", "Component", "Manage multiple joystick input")
 
 
+System_Boundary(c2, "Core Engine"){
+    Container(GameEngine, "Game Engine", "Component", "Manage current game state and initialize render details")
+    Container(GameStateController, "Game State Controller", "Component", "handle current level and level transfer")
 
-Container(Level, "Level", "Component", "Manage object rendering and behavior in scenes")
+    Container(Renderer, "Renderer", "Component", "Processes the object that requires visualization and textures")
+    Container(Level, "Level", "Component", "Manage object rendering and behavior in scenes")
 
-Container(Mesh, "Mesh", "Component", "Handle rendering data for OpenGL")
+    Container(InputSystem, "Input system", "Component", "Manage multiple joystick input")
+}
 
 Rel(player, InputSystem, "input")
 Rel(InputSystem, EntityObject, "input actions to the player object")
