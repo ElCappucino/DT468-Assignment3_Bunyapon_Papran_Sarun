@@ -1,4 +1,14 @@
 @startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(player, "Player", "Plays the game")
+System(game, "Online Game System", "Multiplayer game platform")
+System_Ext(payment, "Payment Service", "Handles payments")
+
+Rel(player, game, "Plays")
+Rel(game, payment, "Processes payment")
+
+
 top to bottom direction
 skinparam linetype ortho
 
